@@ -17,10 +17,12 @@ let validateUsername = function (username) {
 const userSchema = new Schema({
     username: {
         type: String,
-        unique: 'Username already exists',
+        createIndex:{
+            unique:'Username already exists',
+        },
         required: 'Please fill in a username',
-        // validate: [validateUsername, 'Please enter a valid username: 3+ characters long, non restricted word,'+
-        //  'characters "_-.", no consecutive dots, does not begin or end with dots, letters a-z and numbers 0-9.'],
+        validate: [validateUsername, 'Please enter a valid username: 3+ characters long, non restricted word,'+
+          'characters "_-.", no consecutive dots, does not begin or end with dots, letters a-z and numbers 0-9.'],
         trim: true,
         min:[4, 'to short, minimum is 4 characters'],
         max:[32, 'too long, max is 32 characters']
@@ -28,6 +30,10 @@ const userSchema = new Schema({
     },
     email :{
         type: String,
+        createIndex:{
+            unique: true,
+            sparse: true
+        },
         // index: {
         //     unique: true,
         //     sparse: true
@@ -62,32 +68,29 @@ const userSchema = new Schema({
     ]
 });
 
+/**
+ * Create instance method for hashing a password
+ */
+userSchema.methods.hashPassword = function (password) {
+    return bcrypt.hashSync(password, this.salt);
+};
+
+/**
+ * Create instance method for authenticating user
+ */
+userSchema.methods.authenticate = function (password) {
+    return this.password === this.hashPassword(password);
+  };
+  
 module.exports = mongoose.model('User', userSchema);
 
 /**
  * Pre save method to hash password
  */
-userSchema.pre('save',  (next) => {
-    // if (this.password //&& this.isModified('password')
-    // ) {
-        bcrypt.genSalt(10, (err, salt) => {
-            this.salt = salt;
-            this.password = this.hashPassword(this.password);
-            console.log('password:'+this.password);
-            console.log('salt:'+this.salt);
-            next();
-        });
-     
-    // }
-
+userSchema.pre('save',  function (next)  {
+    this.salt=bcrypt.genSaltSync(10);
+    this.password=this.hashPassword(this.password);
+    next();
     
 });
 
-/**
- * Create instance method for hashing a password
- */
-userSchema.methods.hashPassword = function (clearPassword) {
-    bcrypt.hash(password, this.salt, (err, hash) => {
-        return hash;
-    });
-};

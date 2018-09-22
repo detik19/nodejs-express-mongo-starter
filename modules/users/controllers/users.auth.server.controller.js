@@ -3,14 +3,17 @@
 
 const path          = require('path');
 const mongoose      = require('mongoose');
+const passport      = require('passport');
 const User          = mongoose.model('User');
 const errorHandler  = require(path.resolve('./modules/core/controllers/error.server.controller'));
+const jwt           = require('jsonwebtoken');
+const config        = require(path.resolve('./config/config'));
 
 exports.signup =  (req, res) => {
-    delete req.body.roles;
+    //delete req.body.roles;
 
     let user = new User(req.body);
-    console.log(user);
+    
     user.save((err, _user) => {
         if(err){
             return res.status(400).send({
@@ -19,6 +22,22 @@ exports.signup =  (req, res) => {
         }
         else {
             res.json(_user);
-;        }
+        }
     });
+}
+
+exports.signin = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err || !user) {
+            return  res.status(422).send(info);
+        }
+        const token = jwt.sign({
+            id:user.id,
+            username:user.username
+        }, config.jwt.key, {expiresIn:'1h'});
+        return res.status(200).json({
+            'token': token,
+            'user': user
+        });
+    })(req,res, next);
 }

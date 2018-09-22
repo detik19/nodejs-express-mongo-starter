@@ -11,5 +11,11 @@ module.exports = {
     debug: process.env.MONGODB_DEBUG || false
   },
   illegalUsernames: ['meanjs', 'administrator', 'password', 'admin', 'user',
-  'unknown', 'anonymous', 'null', 'undefined', 'api']
+  'unknown', 'anonymous', 'null', 'undefined', 'api'],
+  app: {
+    title: defaultEnvConfig.app.title + ' - Development Environment'
+  },
+  jwt :{
+    key:'sas2121adad'
+  }
 }

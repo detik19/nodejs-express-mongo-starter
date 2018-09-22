@@ -33,6 +33,17 @@ let getUniqueErrorMessage = function (err) {
   return output;
 };
 
+exports.normalizeError = function(errors) {
+  let errorArr =[];
+  for (let property in errors) {
+    if(errors.hasOwnProperty(property)){
+      errorArr.push({
+        title: property,
+        detail: errors[property].message
+      });
+    }
+  }
+}
 /**
  * Get the error message from error object
  */

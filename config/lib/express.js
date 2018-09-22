@@ -1,10 +1,13 @@
 'use strict';
-const config    = require('../config');
-const express   = require('express');
-const bodyParser = require('body-parser');
-const compress = require('compression');
-const cors      = require('cors');
-const path      = require('path');
+const config          = require('../config');
+const express         = require('express');
+const bodyParser      = require('body-parser');
+const compress        = require('compression');
+const path            = require('path');
+const session         = require('express-session');
+const methodOverride  = require('method-override');
+const cookieParser    = require('cookie-parser');
+const MongoStore      = require('connect-mongo') (session);
 /**
  * Initialize local variables
  */
@@ -46,7 +49,37 @@ module.exports.initMiddleware = function (app) {
     extended: true
   }));
   app.use(bodyParser.json());
+
+  app.use(methodOverride());
+  app.use(cookieParser());
 }
+
+/**
+ * Configure Express session
+ */
+module.exports.initSession = function (app, db) {
+  // Express MongoDB session storage
+  app.use(session({
+    saveUninitialized: true,
+    resave: true,
+    secret: config.sessionSecret,
+    cookie: {
+      maxAge: config.sessionCookie.maxAge,
+      httpOnly: config.sessionCookie.httpOnly,
+      secure: config.sessionCookie.secure && config.secure.ssl
+    },
+    name: config.sessionKey
+    // store: new MongoStore({
+    //   db: db,
+    //   collection: config.sessionCollection
+    // })
+  }));
+
+  // Add Lusca CSRF Middleware
+  //app.use(lusca(config.csrf));
+};
+
+
 
 /**
  * Invoke modules server configuration
@@ -57,6 +90,17 @@ module.exports.initModulesConfiguration = function (app) {
         console.log(configPath);
       require(path.resolve(configPath))(app);
     });
+};
+
+/**
+ * Configure the modules ACL policies
+ */
+module.exports.initModulesServerPolicies = function (app) {
+  // Globbing policy files
+  config.files.server.policies.forEach(function (policyPath) {
+    console.log(policyPath);
+    require(path.resolve(policyPath)).invokeRolesPolicies();
+  });
 };
 
 module.exports.initModulesServerRoutes = function (app) {
@@ -75,9 +119,15 @@ module.exports.init = function (db) {
     // Initialize Express middleware
     this.initMiddleware(app);
 
+  // Initialize Express session
+    this.initSession(app, db);
+
     // Initialize Modules configuration
     this.initModulesConfiguration(app);
     
+    // Initialize modules server authorization policies
+    this.initModulesServerPolicies(app);
+
      // Initialize modules server routes
     this.initModulesServerRoutes(app);
     return app;
