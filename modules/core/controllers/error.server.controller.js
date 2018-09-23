@@ -9,7 +9,7 @@ const config = require(path.resolve('./config/config'));
 /**
  * Get unique error field name
  */
-let getUniqueErrorMessage = function (err) {
+const getUniqueErrorMessage = function (err) {
   let output;
 
   try {
@@ -43,7 +43,7 @@ exports.normalizeError = function(errors) {
       });
     }
   }
-}
+};
 /**
  * Get the error message from error object
  */

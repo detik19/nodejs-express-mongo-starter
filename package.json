@@ -29,13 +29,19 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-google": "^0.10.0",
+    "eslint-plugin-import": "^2.14.0"
+  },
   "scripts": {
+    "lint": "eslint",
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/detik19/nodejs-express-mongo-starter.git"
+    "url": "https://github.com/detik19/nodejs-express-mongo-starter.git"
   },
   "keywords": [
     "nodejs",

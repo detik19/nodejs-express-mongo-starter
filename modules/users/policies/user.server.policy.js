@@ -1,6 +1,6 @@
 'use strict';
-const path = require('path');
-const JwtService = require(path.resolve('./modules/users/services/jwt.server.service'));
+const path          = require('path');
+const JwtService    = require(path.resolve('./modules/users/services/jwt.server.service'));
 
 exports.invokeRolesPolicies = function () {
 
