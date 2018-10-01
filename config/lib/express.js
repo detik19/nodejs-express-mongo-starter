@@ -52,12 +52,14 @@ module.exports.initMiddleware = function (app) {
 
   app.use(methodOverride());
   app.use(cookieParser());
-}
+};
+
 
 /**
  * Configure Express session
  */
 module.exports.initSession = function (app, db) {
+   console.log(config.sessionSecret);
   // Express MongoDB session storage
   app.use(session({
     saveUninitialized: true,
@@ -68,11 +70,11 @@ module.exports.initSession = function (app, db) {
       httpOnly: config.sessionCookie.httpOnly,
       secure: config.sessionCookie.secure && config.secure.ssl
     },
-    name: config.sessionKey
-    // store: new MongoStore({
-    //   db: db,
-    //   collection: config.sessionCollection
-    // })
+    name: config.sessionKey,
+    store: new MongoStore({
+      db: db,
+      collection: config.sessionCollection
+    })
   }));
 
   // Add Lusca CSRF Middleware
@@ -86,8 +88,7 @@ module.exports.initSession = function (app, db) {
  */
 module.exports.initModulesConfiguration = function (app) {
     config.files.server.configs.forEach(
-    (configPath) => {
-        console.log(configPath);
+    function (configPath) {
       require(path.resolve(configPath))(app);
     });
 };
@@ -98,7 +99,7 @@ module.exports.initModulesConfiguration = function (app) {
 module.exports.initModulesServerPolicies = function (app) {
   // Globbing policy files
   config.files.server.policies.forEach(function (policyPath) {
-    console.log(policyPath);
+   // console.log(policyPath);
     require(path.resolve(policyPath)).invokeRolesPolicies();
   });
 };

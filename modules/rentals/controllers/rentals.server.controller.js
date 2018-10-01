@@ -4,7 +4,9 @@ const path          = require('path');
 const mongoose      = require('mongoose');
 const Rental        = mongoose.model('Rental');
 const errorHandler  = require(path.resolve('./modules/core/controllers/error.server.controller'));
+const RentalService = require('../services/rentals.server.service');
 
+const rentalService = new RentalService();
 /**
  * Create an article
  */
@@ -35,11 +37,26 @@ exports.list = (req, res) => {
               }
         }
     );
-}
+};
+
 exports.read = (req, res) => {
   let rental = req.rental ? req.rental.toJSON() : {};
   res.json(rental);
-}
+};
+
+exports.findRentalById = (req, res, next) => {
+  rentalService.findRentalById(req.body._rental.id, function(err, rentalFInd){
+    if(err) {
+      return res.status(422).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    }
+    console.log(rentalFInd);
+    res.rental = rentalFInd;
+    next();
+  });
+};
+
 exports.rentalById = (req, res, next, id) => {
   if(!mongoose.Types.ObjectId.isValid(id)){
     return res.status(400).send({message:'id is invalid'});
@@ -47,7 +64,6 @@ exports.rentalById = (req, res, next, id) => {
 
   Rental.findById(id).exec(
     (err, rental) => {
-      console.log(rental);
 
       if(err) {
         return next(err);
@@ -60,4 +76,4 @@ exports.rentalById = (req, res, next, id) => {
       next();
     }
   );
-}
+};

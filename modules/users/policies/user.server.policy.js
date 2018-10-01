@@ -17,7 +17,7 @@ exports.isAuthorization = function (req, res, next) {
         if(err)  return res.status(403).json({
             message: 'User is not authorized'
         });
-        const user= result;
+        res.local.user= result;
         next();
     });
 

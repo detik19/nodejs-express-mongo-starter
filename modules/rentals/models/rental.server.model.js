@@ -40,7 +40,13 @@ const rentalSchema = new Schema({
     _user: {
         type: Schema.ObjectId,
         ref: 'User'
-    }
+    },
+    _bookings: [
+        {
+            type: Schema.ObjectId,
+            ref: 'Bookings'
+        }
+    ]
 
 });
 

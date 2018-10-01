@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const config = require('../config');
 const path = require('path');
+const _ = require('lodash');
 
 // Load the mongoose models
 module.exports.loadModels = function (callback) {
@@ -19,18 +20,25 @@ module.exports.connect = function (callback) {
     // console.log('1a');
     mongoose.Promise = global.Promise;
 
-    mongoose.connect(config.db.uri, { useNewUrlParser: true })
+    const options = _.merge(config.db.options || {}, { useNewUrlParser: true });
+
+    //console.log(config.db.uri);
+    mongoose.connect(config.db.uri, options)
     .then(function (connection) {
         // Enabling mongoose debug mode if required
         mongoose.set('debug', true);
-       // console.log(connection.db);
+       //console.log(connection.Mongoose);
         // Call callback FN
-        if (callback) callback(connection.db);
+       
+        if (callback) callback( mongoose.connection.db);
+
+        
     })
     .catch(function (err) {
         console.log(err);
     });
-}
+};
+
 
 module.exports.disconnect = function (cb) {
     mongoose.connection.db

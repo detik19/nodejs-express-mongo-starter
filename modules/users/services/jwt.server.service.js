@@ -4,7 +4,7 @@ const path= require('path');
 const config= require(path.resolve('./config/config'));
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-const errorHandler  = require(path.resolve('./modules/core/controllers/error.server.controller'));
+//const errorHandler  = require(path.resolve('./modules/core/controllers/error.server.controller'));
 
 function JwtService(){
 
@@ -13,16 +13,16 @@ function JwtService(){
     let decoded = jwt.verify(token.split(' ')[1], config.jwt.key);
 
     callback(null, decoded);
-  }
+  };
 
   this.findUser = function (decoded, callback) {
     User.findById(decoded.id, function (err, user) {
         if(err) callback(err);
-            console.log(user);
+ //           console.log(user);
             callback(null, user);
         });
-       
-    }
+        
+    };
 };
 
 
